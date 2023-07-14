@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Стеганография</string>
+
+    <string name="text_in_image">Текст, записанный в изображении</string>
+    <string name="choosing_image">Выберите изображение</string>
+    <string name="choose_image">Выбрать изображение</string>
+    <string name="save_image">Сохранить</string>
+    <string name="send_image">Отправить</string>
+
+    <string name="image_description_stub">image</string>
+    <string name="string_stub">...</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
