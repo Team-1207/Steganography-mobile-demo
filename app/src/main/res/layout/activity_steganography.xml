@@ -24,8 +24,7 @@
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/choose_image_button"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintStart_toStartOf="parent">
 
             <ImageView
                 android:id="@+id/preview_image"
@@ -37,73 +36,91 @@
 
         <Button
             android:id="@+id/choose_image_button"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="8dp"
             android:text="@string/choose_image"
-            app:layout_constraintBottom_toTopOf="@+id/post_preview_form_layout"
+            app:layout_constraintBottom_toTopOf="@+id/post_preview_buttons_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/post_preview_form_layout"
-            android:layout_width="wrap_content"
+            android:id="@+id/post_preview_buttons_layout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintEnd_toEndOf="@+id/choose_image_button"
+            app:layout_constraintStart_toStartOf="@+id/choose_image_button"
+            tools:visibility="visible">
 
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/text_in_image"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <EditText
-                android:id="@+id/image_text_text_field"
+            <Button
+                android:id="@+id/save_image_button"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/dim_48dp"
-                android:autofillHints=""
-                android:ems="10"
-                android:hint="@string/string_stub"
-                android:inputType="text"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView3"
-                tools:ignore="LabelFor" />
-
-            <LinearLayout
-                style="?android:attr/buttonBarStyle"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:layout_marginEnd="16dp"
+                android:backgroundTint="@color/palette_4"
+                android:text="@string/save_image"
+                android:textColor="@color/palette_5"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/send_image_button"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:layout_conversion_absoluteHeight="48dp"
+                tools:layout_conversion_absoluteWidth="126dp" />
+
+            <Button
+                android:id="@+id/send_image_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/palette_4"
+                android:backgroundTintMode="add"
+                android:text="@string/send_image"
+                android:textColor="@color/palette_5"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/image_text_text_field">
-
-                <Button
-                    android:id="@+id/save_image_button"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/dim_8dp"
-                    android:text="@string/save_image" />
-
-                <Button
-                    android:id="@+id/send_image_button"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/dim_8dp"
-                    android:text="@string/send_image" />
-            </LinearLayout>
-
+                app:layout_constraintStart_toEndOf="@+id/save_image_button"
+                tools:layout_conversion_absoluteHeight="48dp"
+                tools:layout_conversion_absoluteWidth="125dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/post_preview_form_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/image_text_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/text_in_image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/image_text_text_field"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dim_48dp"
+            android:autofillHints=""
+            android:ems="10"
+            android:hint="@string/string_stub"
+            android:inputType="text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/image_text_text"
+            tools:ignore="LabelFor" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.fragment.app.FragmentContainerView

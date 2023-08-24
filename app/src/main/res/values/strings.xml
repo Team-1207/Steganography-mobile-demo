@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Стеганография</string>
+    <string name="app_name">Стег</string>
 
     <string name="text_in_image">Текст, записанный в изображении</string>
     <string name="choosing_image">Выберите изображение</string>

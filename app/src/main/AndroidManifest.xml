@@ -14,6 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/Theme.Steganography">
         <activity
+            android:windowSoftInputMode="adjustPan"
             android:name=".SteganographyActivity"
             android:screenOrientation="portrait"
             android:exported="true"

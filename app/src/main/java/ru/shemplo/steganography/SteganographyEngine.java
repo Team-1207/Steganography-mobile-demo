@@ -2,12 +2,16 @@ package ru.shemplo.steganography;
 
 import android.graphics.Bitmap;
 import android.util.Log;
+import android.widget.Toast;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class SteganographyEngine {
 
     private static volatile SteganographyEngine instance;
+
+    private static int SIZE_BITS = 10;
 
     public static SteganographyEngine getInstance () {
         if (instance == null) {
@@ -21,76 +25,30 @@ public class SteganographyEngine {
         return instance;
     }
 
+    public void encode (Bitmap bitmap, String message) {
+        byte [] chars = message.getBytes (StandardCharsets.UTF_8);
+        if (
+            chars.length >= 1 << SIZE_BITS
+            || chars.length * 8 >= (bitmap.getWidth () * bitmap.getHeight () - SIZE_BITS)
+        ) {
+            throw new IllegalArgumentException ("Message is too big for steganography");
+        }
+
+        for (int i = 0; i < SIZE_BITS; i++) {
+            setPixelBit (bitmap, i, (chars.length >>> (15 - i)) & 1);
+        }
+
+        for (int i = 0; i < chars.length; i++) {
+            for (int b = 0; b < 8; b++) {
+                setPixelBit (bitmap, i * 8 + b + SIZE_BITS, (chars [i] >>> (7 - i)) & 1);
+            }
+        }
+    }
+
     public String decode (Bitmap bitmap) {
-        /*
-        Log.i ("SE", bitmap.getWidth() + "x" + bitmap.getHeight());
-        int [][] pixels = {
-            {0, 0},
-            {1, 0},
-            {2, 0},
-            {3, 0},
-            {4, 0},
-            {5, 0},
-            {6, 0},
-
-            {0, 1},
-            {0, 2},
-            {0, 3},
-            {0, 4},
-            {0, 5},
-            {0, 6},
-
-            {0, bitmap.getHeight() - 1},
-            {bitmap.getWidth() - 1, 0},
-            {bitmap.getWidth() - 1, bitmap.getHeight() - 1}
-        };
-        for (int [] option : pixels) {
-            Log.i ("SE", "(" + option [0] + ", " + option [1] + ")");
-            int pixel = bitmap.getPixel (option [0], option [1]);
-            //Log.i ("SE", "    " + pixel);
-            Log.i ("SE", "    " + Integer.toBinaryString(pixel));
-
-            StringBuilder sb = new StringBuilder ();
-            for (int i = 3; i >= 0; i--) {
-                sb.append (String.format ("0x%2h", (pixel >>> (i * 8)) & 0xFF)).append (" ");
-            }
-            Log.i ("SE", "    " + sb.toString ());
-        }
-        Log.i ("SE", bitmap.getPixel (0, bitmap.getHeight() - 1) + " " + Integer.toBinaryString(bitmap.getPixel (0, bitmap.getHeight() - 1)));
-        Log.i ("SE", bitmap.getPixel (bitmap.getWidth() - 1, 0) + " " + Integer.toBinaryString(bitmap.getPixel (bitmap.getWidth() - 1, 0)));
-        Log.i ("SE", bitmap.getPixel (bitmap.getWidth() - 1, bitmap.getHeight() - 1) + " " + Integer.toBinaryString(bitmap.getPixel (bitmap.getWidth() - 1, bitmap.getHeight() - 1)));
-        */
-
-        /*
-        StringBuilder sb = new StringBuilder ();
-        for (int i = 0; i < 5; i++) {
-            int x = (i * 8) / 3;
-
-            Log.i ("SE", "Take pixel (" + x + ", 0), t=" + ((i * 8) % 3) + ", initial");
-            int pixel = bitmap.getPixel (x, 0);
-
-            int character = 0;
-            for (int j = 0, t = (i * 8) % 3; j < 8; j++) {
-                character <<= 1;
-                character += (pixel >>> ((2 - t) * 8)) & 0b1;
-
-                t = (t + 1) % 3;
-                if (t == 0) {
-                    x++;
-                    Log.i ("SE", "Take pixel (" + x + ", 0)");
-                    pixel = bitmap.getPixel (x, 0);
-                }
-            }
-
-            sb.append (Character.toChars (character) [0]);
-        }
-        */
-
         StringBuilder sb = new StringBuilder ();
         for (int i = 0; i < 20; i++) {
             int a = bitmap.getPixel (i * 2, 0), b = bitmap.getPixel (i * 2 + 1, 0);
-            Log.i ("SE", "a: " + Integer.toBinaryString (a));
-            Log.i ("SE", "b: " + Integer.toBinaryString (b));
 
             StringBuilder tsba = new StringBuilder ();
             StringBuilder tsbb = new StringBuilder ();
@@ -99,8 +57,6 @@ public class SteganographyEngine {
                 tsba.append (String.format ("0x%2h (%3d)  ", ta, ta)).append (" ");
                 tsbb.append (String.format ("0x%2h (%3d)  ", tb, tb)).append (" ");
             }
-            Log.i ("SE", "ARGB a: " + tsba.toString ());
-            Log.i ("SE", "ARGB b: " + tsbb.toString ());
 
             int character = takeAndShift (a, 2, 7)
                           | takeAndShift (a, 1, 6)
@@ -110,14 +66,6 @@ public class SteganographyEngine {
                           | takeAndShift (b, 1, 2)
                           | takeAndShift (b, 0, 1)
                           | takeAndShift (b, 3, 0);
-            //Log.i ("SE", "7: " + String.format ("%8s", Integer.toBinaryString (takeAndShift (a, 0, 7))));
-            //Log.i ("SE", "6: " + String.format ("%8s", Integer.toBinaryString (takeAndShift (a, 3, 6))));
-            //Log.i ("SE", "5: " + String.format ("%8s", Integer.toBinaryString (takeAndShift (a, 2, 5))));
-            //Log.i ("SE", "4: " + String.format ("%8s", Integer.toBinaryString (takeAndShift (a, 1, 4))));
-            //Log.i ("SE", "3: " + String.format ("%8s", Integer.toBinaryString (takeAndShift (b, 0, 3))));
-            //Log.i ("SE", "2: " + String.format ("%8s", Integer.toBinaryString (takeAndShift (b, 3, 2))));
-            //Log.i ("SE", "1: " + String.format ("%8s", Integer.toBinaryString (takeAndShift (b, 2, 1))));
-            //Log.i ("SE", "0: " + String.format ("%8s", Integer.toBinaryString (takeAndShift (b, 1, 0))));
             Log.i ("SE", "с: " + String.format ("%8s (%d)", Integer.toBinaryString (character & 0xFF), character));
 
             sb.append (Character.toChars (character & 0xFF) [0]);
@@ -125,6 +73,19 @@ public class SteganographyEngine {
         }
 
         return sb.toString ();
+    }
+
+    private static int getPixel (Bitmap bitmap, int index) {
+        return bitmap.getPixel (index % bitmap.getWidth (), index / bitmap.getWidth ());
+    }
+
+    private static void setPixel (Bitmap bitmap, int index, int pixel) {
+        bitmap.setPixel (index % bitmap.getWidth (), index / bitmap.getWidth (), pixel);
+    }
+
+    private static void setPixelBit (Bitmap bitmap, int index, int bit) {
+        int pixel = getPixel (bitmap, index) & 0xFE; // clear last bit
+        setPixel (bitmap, index, pixel | bit);
     }
 
     private static int takeAndShift (int number, int take, int shift) {
