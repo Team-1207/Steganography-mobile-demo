@@ -58,6 +58,7 @@ public class FileChooseFragment extends Fragment {
         imagesRecycler = view.findViewById (R.id.images_recycler);
         imagesRecycler.setLayoutManager (new LinearLayoutManager (getContext ()));
         imagesRecycler.setAdapter (new ImagesListAdapter (this));
+        //imagesRecycler.setItemAnimator (null);
     }
 
     public void onImageChosen (Bitmap bitmap) {

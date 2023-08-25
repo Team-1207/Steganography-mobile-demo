@@ -12,6 +12,7 @@ import android.Manifest;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -62,10 +63,12 @@ public class SteganographyActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions (this, new String [] {permission}, 100);
         }
 
+        /*
         permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
         if (ContextCompat.checkSelfPermission (getApplicationContext (), permission) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions (this, new String [] {permission}, 100);
         }
+        */
 
         previewImageSquare = findViewById (R.id.preview_image_square);
         previewImage = findViewById (R.id.preview_image);
@@ -105,15 +108,16 @@ public class SteganographyActivity extends AppCompatActivity {
         saveImageButton = findViewById (R.id.save_image_button);
         saveImageButton.setOnClickListener (event -> {
             ContentValues cv = new ContentValues ();
-            cv.put (MediaStore.MediaColumns.DISPLAY_NAME, Math.random() + ".jpg");
+            cv.put (MediaStore.MediaColumns.DISPLAY_NAME, Math.random () + ".png");
             cv.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
 
             Uri imageURI = getContentResolver ().insert (MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cv);
             Log.i ("SA", "Picture path: " + imageURI.toString ());
             try (OutputStream os = getContentResolver ().openOutputStream (imageURI)) {
-                bitmap.compress (Bitmap.CompressFormat.JPEG, 90, os);
+                SteganographyEngine.getInstance ().encode (bitmap, imageTextField.getText ().toString ());
+                bitmap.compress (Bitmap.CompressFormat.PNG, 100, os);
             } catch (IOException ioe) {
-                ioe.printStackTrace ();
+                Log.e ("SA", "Failed to save modified image", ioe);
             }
         });
     }
@@ -141,7 +145,9 @@ public class SteganographyActivity extends AppCompatActivity {
     public void onImageChosen (Bitmap bitmap) {
         imageTextField.setText (SteganographyEngine.getInstance ().decode (bitmap));
         previewImage.setImageBitmap (bitmap);
-        this.bitmap = bitmap;
+
+        this.bitmap = bitmap.copy (Bitmap.Config.ARGB_8888, true);
+        this.bitmap.setHasAlpha (true);
 
         postPreviewButtons.setVisibility (View.VISIBLE);
         previewImageSquare.setVisibility (View.VISIBLE);

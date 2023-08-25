@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
@@ -25,10 +26,12 @@ public class ImagesListAdapter extends RecyclerView.Adapter <ImageViewHolder> {
 
     private final List <Bitmap> images = new ArrayList <> ();
 
+    private AsyncTask <ImagesListAdapter, Void, Void> scanTask;
+
     public ImagesListAdapter (FileChooseFragment fragment) {
         this.fragment = fragment;
 
-        new ImagesListScanTask ().execute (this);
+        scanTask = new ImagesListScanTask ().execute (this);
     }
 
     @NonNull
@@ -41,6 +44,8 @@ public class ImagesListAdapter extends RecyclerView.Adapter <ImageViewHolder> {
     public void onBindViewHolder (@NonNull ImageViewHolder holder, int position) {
         holder.imageView.setImageBitmap (images.get (position));
         holder.imageView.setOnClickListener (v -> {
+            scanTask.cancel (true);
+
             fragment.onImageChosen (images.get (position));
         });
     }
