@@ -10,7 +10,8 @@ public class SteganographyEngine {
 
     private static volatile SteganographyEngine instance;
 
-    private static int SIZE_PIXELS = 3;
+    private static final int SIZE_PIXELS = 3;
+    private static final int SIZE_BITS = SIZE_PIXELS * 4;
 
     public static SteganographyEngine getInstance () {
         if (instance == null) {
@@ -28,10 +29,7 @@ public class SteganographyEngine {
 
     public void encode (Bitmap bitmap, String message) {
         byte [] bytes = message.getBytes (StandardCharsets.UTF_8);
-        if (
-            bytes.length >= 1 << (SIZE_PIXELS * 4)
-            //|| bytes.length * 8 >= (bitmap.getWidth () * bitmap.getHeight () - SIZE_PIXELS)
-        ) {
+        if (bytes.length >= 1 << SIZE_BITS) {
             throw new IllegalArgumentException ("Message is too big for steganography");
         }
 
@@ -60,7 +58,7 @@ public class SteganographyEngine {
             sizePixels [i] = getPixel (bitmap, i);
         }
 
-        int maxData = (1 << (SIZE_PIXELS * 4 + 1)) - 1;
+        int maxData = (1 << (SIZE_BITS + 1)) - 1;
         int length = Math.min (takeNumber (sizePixels), maxData);
 
         byte [] bytes = new byte [length];
