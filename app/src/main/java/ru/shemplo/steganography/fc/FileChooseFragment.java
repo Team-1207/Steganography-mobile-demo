@@ -61,6 +61,15 @@ public class FileChooseFragment extends Fragment {
         //imagesRecycler.setItemAnimator (null);
     }
 
+    @Override
+    public void onDestroyView () {
+        super.onDestroyView ();
+
+        Log.d ("FCF", "Fragment should be destroyed");
+        imagesRecycler.setAdapter (null);
+        imagesRecycler = null;
+    }
+
     public void onImageChosen (Bitmap bitmap) {
         ((SteganographyActivity) getActivity ()).onImageChosen (bitmap);
         getParentFragmentManager ().beginTransaction ().remove (this).commit ();

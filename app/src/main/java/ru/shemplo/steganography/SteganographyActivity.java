@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import ru.shemplo.steganography.fc.FileChooseFragment;
+import ru.shemplo.steganography.util.T3;
 
 public class SteganographyActivity extends AppCompatActivity {
 
@@ -107,18 +108,7 @@ public class SteganographyActivity extends AppCompatActivity {
 
         saveImageButton = findViewById (R.id.save_image_button);
         saveImageButton.setOnClickListener (event -> {
-            ContentValues cv = new ContentValues ();
-            cv.put (MediaStore.MediaColumns.DISPLAY_NAME, Math.random () + ".png");
-            cv.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
-
-            Uri imageURI = getContentResolver ().insert (MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cv);
-            Log.i ("SA", "Picture path: " + imageURI.toString ());
-            try (OutputStream os = getContentResolver ().openOutputStream (imageURI)) {
-                SteganographyEngine.getInstance ().encode (bitmap, imageTextField.getText ().toString ());
-                bitmap.compress (Bitmap.CompressFormat.PNG, 100, os);
-            } catch (IOException ioe) {
-                Log.e ("SA", "Failed to save modified image", ioe);
-            }
+            new ImageSaveTask ().execute (T3.of (getApplicationContext (), bitmap, imageTextField.getText ().toString ()));
         });
     }
 
@@ -143,11 +133,13 @@ public class SteganographyActivity extends AppCompatActivity {
     }
 
     public void onImageChosen (Bitmap bitmap) {
-        imageTextField.setText (SteganographyEngine.getInstance ().decode (bitmap));
-        previewImage.setImageBitmap (bitmap);
-
         this.bitmap = bitmap.copy (Bitmap.Config.ARGB_8888, true);
         this.bitmap.setHasAlpha (true);
+
+        Log.d ("SA", "Setting up given bitmap...");
+        imageTextField.setText (SteganographyEngine.getInstance ().decode (this.bitmap));
+        previewImage.setImageBitmap (this.bitmap);
+        Log.d ("SA", "Given bitmap is set");
 
         postPreviewButtons.setVisibility (View.VISIBLE);
         previewImageSquare.setVisibility (View.VISIBLE);

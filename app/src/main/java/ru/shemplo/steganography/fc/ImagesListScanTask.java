@@ -1,47 +1,69 @@
 package ru.shemplo.steganography.fc;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Pair;
 
+import java.io.IOException;
 import java.util.List;
 
 public class ImagesListScanTask extends AsyncTask <ImagesListAdapter, Void, Void> {
 
     private static final String [] CAMERA_PROJECTION = {
-        MediaStore.Images.Media.DATA,
+        MediaStore.Images.Media._ID,
         MediaStore.Images.Media.BUCKET_DISPLAY_NAME
     };
 
     @Override
     protected Void doInBackground (ImagesListAdapter... adapters) {
-        Cursor cursor = adapters [0].getContext ().getContentResolver ().query (
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            CAMERA_PROJECTION, null, null,
+        ContentResolver contentResolver = adapters [0].getContext ().getContentResolver ();
+        Uri contentURI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+        Log.d ("ILST", "Scan task started...");
+        Cursor cursor = contentResolver.query (
+            contentURI, CAMERA_PROJECTION, null, null,
             MediaStore.Images.Media.DATE_ADDED + " DESC"
         );
 
+        Log.d ("ILST", "Files query is over. Processing files...");
         if (cursor != null) {
             if (cursor.moveToFirst ()) {
-                int bucketColumn = cursor.getColumnIndexOrThrow (MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-                int dataColumn = cursor.getColumnIndexOrThrow (MediaStore.Images.Media.DATA);
+                int idColumn = cursor.getColumnIndexOrThrow (MediaStore.Images.Media._ID);
                 int amount = 0;
                 do {
-                    Log.d ("ILA", "Bucket " + cursor.getString (bucketColumn));
-                    Log.d ("ILA", "Data " + cursor.getString (dataColumn));
-
-                    adapters [0].appendItem (BitmapFactory.decodeFile (cursor.getString (dataColumn)));
-                } while (cursor.moveToNext () && amount++ < 300);
+                    Uri imageURI = ContentUris.withAppendedId (contentURI, cursor.getLong (idColumn));
+                    Log.d ("ILST", amount + " - id " + cursor.getLong (idColumn) + ", URI: " + imageURI);
+                    try (ParcelFileDescriptor pfd = contentResolver.openFileDescriptor (imageURI, "r")) {
+                        if (pfd.getStatSize () < 15_000_000) {
+                            Bitmap bitmap = BitmapFactory.decodeFileDescriptor (pfd.getFileDescriptor ());
+                            if (bitmap.getAllocationByteCount () < 50_000_000) {
+                                adapters [0].appendItem (bitmap);
+                            } else {
+                                Log.w ("ILST", "Bitmap to big to be used: " + bitmap.getAllocationByteCount () + " bytes");
+                            }
+                        } else {
+                            Log.w ("ILST", "Image to big to be used: " + pfd.getStatSize () + " bytes");
+                        }
+                    } catch (IOException ioe) {
+                        Log.e ("ILST", "Failed to read image descriptor", ioe);
+                    }
+                } while (cursor.moveToNext () && amount++ < 50);
             }
 
+            Log.d ("ILST", "Processing of files is finished. Closing cursor...");
             cursor.close ();
         }
 
+        Log.d ("ILST", "Processing of files is finished");
         return null;
     }
 

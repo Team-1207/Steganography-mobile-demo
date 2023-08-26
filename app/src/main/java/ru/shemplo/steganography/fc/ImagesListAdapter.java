@@ -44,7 +44,7 @@ public class ImagesListAdapter extends RecyclerView.Adapter <ImageViewHolder> {
     public void onBindViewHolder (@NonNull ImageViewHolder holder, int position) {
         holder.imageView.setImageBitmap (images.get (position));
         holder.imageView.setOnClickListener (v -> {
-            scanTask.cancel (true);
+            stopImagesScanner ();
 
             fragment.onImageChosen (images.get (position));
         });
@@ -54,9 +54,13 @@ public class ImagesListAdapter extends RecyclerView.Adapter <ImageViewHolder> {
         return fragment.getContext ();
     }
 
+    public void stopImagesScanner () {
+        scanTask.cancel (true);
+    }
+
     @Override
     public int getItemCount () {
-        return images.size();
+        return images.size ();
     }
 
     public void appendItem (Bitmap bitmap) {
