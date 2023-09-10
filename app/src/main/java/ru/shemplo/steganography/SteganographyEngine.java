@@ -1,8 +1,6 @@
 package ru.shemplo.steganography;
 
 import android.graphics.Bitmap;
-import android.util.Log;
-import android.util.Size;
 
 import java.nio.charset.StandardCharsets;
 

@@ -2,7 +2,6 @@ package ru.shemplo.steganography.fc;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,10 +10,8 @@ import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.util.Pair;
 
 import java.io.IOException;
-import java.util.List;
 
 public class ImagesListScanTask extends AsyncTask <ImagesListAdapter, Void, Void> {
 

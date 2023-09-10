@@ -1,46 +1,27 @@
 package ru.shemplo.steganography;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 
-import android.Manifest;
-import android.app.AlertDialog;
-import android.content.ContentValues;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.text.InputType;
-import android.util.Log;
-import android.util.Pair;
-import android.util.TypedValue;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -50,8 +31,6 @@ import ru.shemplo.steganography.util.T3;
 
 public class SteganographyActivity extends AppCompatActivity {
 
-    private Button openFileChooseButton;
-
     private ConstraintLayout postPreviewForm, postPreviewButtons;
 
     private SquareLayout previewImageSquare;
@@ -60,10 +39,6 @@ public class SteganographyActivity extends AppCompatActivity {
     private Bitmap bitmap;
 
     private EditText imageTextField;
-
-    private Button saveImageButton, sendImageButton;
-
-    private FragmentContainerView fileChooseFragment;
 
     private InetAddress sendAddress;
 
@@ -83,13 +58,6 @@ public class SteganographyActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions (this, new String [] {permission}, 100);
         }
 
-        /*
-        permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-        if (ContextCompat.checkSelfPermission (getApplicationContext (), permission) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions (this, new String [] {permission}, 100);
-        }
-        */
-
         permission = Manifest.permission.INTERNET;
         if (ContextCompat.checkSelfPermission (getApplicationContext (), permission) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions (this, new String [] {permission}, 100);
@@ -98,9 +66,7 @@ public class SteganographyActivity extends AppCompatActivity {
         previewImageSquare = findViewById (R.id.preview_image_square);
         previewImage = findViewById (R.id.preview_image);
 
-        fileChooseFragment = findViewById (R.id.file_choose_fragment);
-
-        openFileChooseButton = findViewById (R.id.choose_image_button);
+        Button openFileChooseButton = findViewById(R.id.choose_image_button);
         openFileChooseButton.setOnClickListener (event -> {
             getSupportFragmentManager ().beginTransaction ()
                 .setCustomAnimations (android.R.anim.fade_in, android.R.anim.fade_out)
@@ -114,28 +80,12 @@ public class SteganographyActivity extends AppCompatActivity {
         postPreviewForm = findViewById (R.id.post_preview_form_layout);
         imageTextField = findViewById (R.id.image_text_text_field);
 
-        imageTextField.setOnFocusChangeListener ((__, hasFocus) -> {
-            if (hasFocus) {
-                //previewImageSquare.setVisibility (View.GONE);
-            } else {
-                //previewImageSquare.setVisibility (View.VISIBLE);
-            }
-        });
-        imageTextField.setOnEditorActionListener ((view, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                //previewImageSquare.setVisibility (View.VISIBLE);
-            }
-
-            Log.i ("SA", "Event code: " + actionId);
-            return false;
-        });
-
-        saveImageButton = findViewById (R.id.save_image_button);
+        Button saveImageButton = findViewById(R.id.save_image_button);
         saveImageButton.setOnClickListener (event -> {
             new ImageSaveTask ().execute (T3.of (getApplicationContext (), bitmap, imageTextField.getText ().toString ()));
         });
 
-        sendImageButton = findViewById (R.id.send_image_button);
+        Button sendImageButton = findViewById(R.id.send_image_button);
         sendImageButton.setOnClickListener (event -> {
             new ImageSendTask ().execute (T3.of (bitmap, imageTextField.getText ().toString (), sendAddress));
         });

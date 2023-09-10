@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.util.Pair;
 
 import java.io.IOException;
 import java.io.OutputStream;

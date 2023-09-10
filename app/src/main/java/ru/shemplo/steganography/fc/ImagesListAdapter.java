@@ -1,15 +1,10 @@
 package ru.shemplo.steganography.fc;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.MediaStore;
-import android.util.Log;
-import android.util.Pair;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -17,8 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ImagesListAdapter extends RecyclerView.Adapter <ImageViewHolder> {
 

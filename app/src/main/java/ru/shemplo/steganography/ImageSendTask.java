@@ -1,18 +1,11 @@
 package ru.shemplo.steganography;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.provider.MediaStore;
 import android.util.Log;
-import android.util.Pair;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -34,7 +27,7 @@ public class ImageSendTask extends AsyncTask <T3 <Bitmap, String, InetAddress>, 
         ) {
             byte [] filename = (Math.random () + ".png").getBytes (StandardCharsets.UTF_8);
             os.write (filename.length);
-            os.write(filename);
+            os.write (filename);
 
             SteganographyEngine.getInstance ().encode (bitmap, bitmaps [0].b);
             bitmap.compress (Bitmap.CompressFormat.PNG, 100, os);
