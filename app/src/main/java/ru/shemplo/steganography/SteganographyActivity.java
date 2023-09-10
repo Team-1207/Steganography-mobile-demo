@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -17,8 +18,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.InputType;
 import android.util.Log;
+import android.util.Pair;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,6 +41,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import ru.shemplo.steganography.fc.FileChooseFragment;
 import ru.shemplo.steganography.util.T3;
@@ -54,6 +65,14 @@ public class SteganographyActivity extends AppCompatActivity {
 
     private FragmentContainerView fileChooseFragment;
 
+    private InetAddress sendAddress;
+
+    {
+        try {
+            sendAddress = Inet4Address.getByAddress (new byte [] {(byte) 192, (byte) 168, 1, 7});
+        } catch (UnknownHostException uhe) { /* impossible */ }
+    }
+
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
@@ -70,6 +89,11 @@ public class SteganographyActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions (this, new String [] {permission}, 100);
         }
         */
+
+        permission = Manifest.permission.INTERNET;
+        if (ContextCompat.checkSelfPermission (getApplicationContext (), permission) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions (this, new String [] {permission}, 100);
+        }
 
         previewImageSquare = findViewById (R.id.preview_image_square);
         previewImage = findViewById (R.id.preview_image);
@@ -110,6 +134,44 @@ public class SteganographyActivity extends AppCompatActivity {
         saveImageButton.setOnClickListener (event -> {
             new ImageSaveTask ().execute (T3.of (getApplicationContext (), bitmap, imageTextField.getText ().toString ()));
         });
+
+        sendImageButton = findViewById (R.id.send_image_button);
+        sendImageButton.setOnClickListener (event -> {
+            new ImageSendTask ().execute (T3.of (bitmap, imageTextField.getText ().toString (), sendAddress));
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu (Menu menu) {
+        getMenuInflater ().inflate (R.menu.menu_top_toolbar, menu);
+        return super.onCreateOptionsMenu (menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected (@NonNull MenuItem item) {
+        if (item.getItemId () == R.id.params_item) {
+            AlertDialog.Builder builder = new AlertDialog.Builder (this);
+            builder.setTitle ("Image sending address");
+
+            View view = LayoutInflater.from (this).inflate (R.layout.form_send_address_input_dialog, null, false);
+            EditText input = view.findViewById (R.id.send_address_input);
+            input.setText (sendAddress.toString ().substring (1));
+            builder.setView (view);
+
+            builder.setPositiveButton ("Set", (dialog, which) -> {
+                new Thread (() -> {
+                    try {
+                        sendAddress = Inet4Address.getByName (input.getText ().toString ());
+                    } catch (UnknownHostException uhe) {
+                        Log.e ("SA", "Incorrect address, change will be ignored", uhe);
+                    }
+                }).start ();
+            });
+
+            builder.show ();
+        }
+
+        return super.onOptionsItemSelected (item);
     }
 
     @Override

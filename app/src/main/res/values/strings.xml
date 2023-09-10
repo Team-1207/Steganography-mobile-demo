@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Стеганограф</string>
 
+    <string name="params_setting">Настройка параметров</string>
+
     <string name="text_in_image">Текст, записанный в изображении</string>
     <string name="choosing_image">Выберите изображение</string>
     <string name="choose_image">Выбрать изображение</string>
@@ -8,7 +10,7 @@
     <string name="send_image">Отправить</string>
 
     <string name="image_description_stub">image</string>
-    <string name="string_stub">...</string>
+    <string name="string_stub">…</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
